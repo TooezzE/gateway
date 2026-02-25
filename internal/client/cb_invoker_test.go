@@ -19,7 +19,7 @@ func (f *failingInvoker) Invoke(_ context.Context, _ string, _ []byte) ([]byte, 
 func TestCBInvoker_Success(t *testing.T) {
 	cb := NewCBInvoker("test", &stubInvoker{resp: []byte("pong")})
 
-	resp, err := cb.Invoke(context.Background(), "method", nil)
+	resp, err := cb.Invoke(context.Background(), "GET", nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -32,13 +32,13 @@ func TestCBInvoker_TripsAfter3ConsecutiveFailures(t *testing.T) {
 	cb := NewCBInvoker("test", &failingInvoker{err: errDownstream})
 
 	for i := 0; i < 3; i++ {
-		_, err := cb.Invoke(context.Background(), "method", nil)
+		_, err := cb.Invoke(context.Background(), "GET", nil)
 		if !errors.Is(err, errDownstream) {
 			t.Fatalf("call %d: expected downstream error, got %v", i+1, err)
 		}
 	}
 
-	_, err := cb.Invoke(context.Background(), "method", nil)
+	_, err := cb.Invoke(context.Background(), "GET", nil)
 	if !errors.Is(err, gobreaker.ErrOpenState) {
 		t.Fatalf("expected ErrOpenState after breaker trips, got %v", err)
 	}
@@ -48,10 +48,10 @@ func TestCBInvoker_OpenStateHidesUnderlyingError(t *testing.T) {
 	cb := NewCBInvoker("test", &failingInvoker{err: errDownstream})
 
 	for i := 0; i < 3; i++ {
-		cb.Invoke(context.Background(), "method", nil) //nolint:errcheck
+		cb.Invoke(context.Background(), "GET", nil)
 	}
 
-	_, err := cb.Invoke(context.Background(), "method", nil)
+	_, err := cb.Invoke(context.Background(), "GET", nil)
 	if errors.Is(err, errDownstream) {
 		t.Fatal("open breaker should not expose the underlying error")
 	}

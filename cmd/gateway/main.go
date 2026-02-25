@@ -36,6 +36,7 @@ func main() {
 	)
 	if err != nil {
 		log.Error(err.Error())
+		return
 	}
 
 	policyGrpcClient := policyv1.NewPolicyServiceClient(conn)

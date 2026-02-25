@@ -46,7 +46,7 @@ func TestHandle_HappyPath(t *testing.T) {
 
 	resp, err := h.Handle(context.Background(), &gatewayv1.Request{
 		ServiceName: "svc",
-		MethodName:  "Do",
+		MethodName:  "GET",
 		Payload:     []byte("ping"),
 	})
 	if err != nil {
